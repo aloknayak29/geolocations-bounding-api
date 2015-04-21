@@ -18,7 +18,9 @@ def pool(docs, y_pred):
         tens[y_pred[i]][0][0] += docs[i][0]
         tens[y_pred[i]][0][1] += docs[i][1]
         tens[y_pred[i]][1] += 1
-    return tens
+    for k,v in tens.iteritems():
+        tens[k][0] = [v[0][0]/float(v[1]) , v[0][1]/float(v[1])]
+    return tens.values()
 
 @app.route("/api/points", methods=['get'])
 def getclusteredpoints():
@@ -51,7 +53,7 @@ def getclusteredpoints():
         y_pred = average_linkage.labels_.astype(np.int)
         rjsonobj = pool(docs, y_pred)
     else:
-        rjsonobj = zip(docs, 0*len(docs))
+        rjsonobj = zip(docs, 1*len(docs))
     r = Response(json.dumps(rjsonobj), mimetype='application/json')
     r.headers["Access-Control-Allow-Origin"] = '*'
     return r
